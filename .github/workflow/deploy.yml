@@ -1,0 +1,31 @@
+name: Build and Deploy to Minikube
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t flask-k8s-app:v1 .
+
+      - name: Load image into Minikube
+        run: minikube image load flask-k8s-app:v1
+
+      - name: Apply Terraform
+        working-directory: terraform
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Restart pods to pick up new image
+        run: kubectl rollout restart deployment/flask-app-deployment
+
+      - name: Verify rollout
+        run: kubectl rollout status deployment/flask-app-deployment
