@@ -91,7 +91,8 @@ Flask App (Python)
 
 ## Status
 
-Core pipeline complete and verified working end-to-end. Possible future
-additions: CI/CD automation (GitHub Actions with a self-hosted runner),
+Core pipeline complete and verified working end-to-end. CI/CD implemented
+via GitHub Actions with a self-hosted runner — every push to `main`
+automatically rebuilds the image, reloads it into Minikube, re-applies
+Terraform, and restarts the deployment. Possible future addition:
 monitoring with Prometheus/Grafana.
-
