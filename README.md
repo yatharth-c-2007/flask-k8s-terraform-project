@@ -14,6 +14,10 @@ Flask App (Python)
     → Terraform (Kubernetes provider)
         → Deployment (2 replicas, self-healing)
         → Service (NodePort, stable network access)
+    → GitHub Actions (self-hosted runner)
+        → Automated build, deploy, and rollout on every push
+    → Prometheus + Grafana (via Helm, kube-prometheus-stack)
+        → Cluster and application metrics, visualized in dashboards
 
 ## What this demonstrates
 
@@ -27,10 +31,14 @@ Flask App (Python)
 
 ## Stack
 
-- Python 3 / Flask — application layer
-- Docker — containerization
-- Kubernetes (Minikube) — container orchestration
-- Terraform — infrastructure as code
+- **Python 3** / **Flask** — application layer
+- **Docker** — containerization
+- **Kubernetes (Minikube)** — container orchestration
+- **Terraform** — infrastructure as code
+- **GitHub Actions** (self-hosted runner) — CI/CD automation
+- **Helm** — package manager for Kubernetes
+- **Prometheus** — metrics collection
+- **Grafana** — metrics visualization / dashboards
 
 ## Project Structure
 
@@ -94,5 +102,21 @@ Flask App (Python)
 Core pipeline complete and verified working end-to-end. CI/CD implemented
 via GitHub Actions with a self-hosted runner — every push to `main`
 automatically rebuilds the image, reloads it into Minikube, re-applies
-Terraform, and restarts the deployment. Possible future addition:
-monitoring with Prometheus/Grafana.
+Terraform, and restarts the deployment. Monitoring added via Prometheus
+and Grafana (installed with Helm's kube-prometheus-stack chart),
+providing live cluster and application metrics dashboards.
+
+## Monitoring
+
+Prometheus and Grafana are installed via Helm into a dedicated `monitoring`
+namespace.
+
+Access Grafana locally:
+\`\`\`bash
+export POD_NAME=$(kubectl --namespace monitoring get pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=monitoring" -o name)
+kubectl --namespace monitoring port-forward $POD_NAME 3000:3000
+\`\`\`
+Then visit http://localhost:3000 (default login: admin / admin123).
+
+Pre-built dashboards under "Dashboards" show live cluster and namespace-level
+CPU/memory usage, including the Flask app's pods.
